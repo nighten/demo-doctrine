@@ -1,0 +1,162 @@
+#!/usr/bin/env php
+<?php
+
+use App\Command\AddRemoveInnerEntityTestCommand;
+use App\Command\CompanyWithZeroLocationCommand;
+use App\Command\DqlFieldsAndDtoMappingCommand;
+use App\Command\FixtureLoadCommand;
+use App\Command\InheritanceSingleTableCommand;
+use App\Command\ManyToManyBidirectionalTestCommand;
+use App\Command\NoInheritanceSingleTableCommand;
+use App\Command\OneColumnHydratorCommand;
+use App\Command\OneColumnSingleScalarHydrateCommand;
+use App\Command\OneToManyRelationRemoveCommand;
+use App\Command\OneToOneLeftJoinCommand;
+use App\Command\OneToOneRelationEagerCommand;
+use App\Command\OneToOneRelationLazyCommand;
+use App\Command\QbFetchModeCommand;
+use App\Command\SearchByCustomTypeCommand;
+use App\Command\TableNameInQbCommand;
+use App\Command\TestEnumsCommand;
+use App\Command\TestFilterCommand;
+use App\Command\DoctrineMetadataCommand;
+use App\Command\UpdateOnPrePersistCommand;
+use App\Command\UuidTestCommand;
+use App\Command\QueryBuilderPaginatorCommand;
+use App\Entity\DocumentLocation\Document;
+use App\Entity\DocumentLocationWithoutDoctrineDiscriminator\Document as DocumentType2;
+use App\Entity\Sprint;
+use App\Entity\Task;
+use App\Repository\CompanyRepository;
+use App\Repository\CompanyWithPrePersistRepository;
+use App\Repository\LocationRepository;
+use App\Repository\RoomRepository;
+use App\Repository\TaskRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\Tools\Console\Command\ClearCache\MetadataCommand;
+use Doctrine\ORM\Tools\Console\Command\ClearCache\QueryCommand;
+use Doctrine\ORM\Tools\Console\Command\ClearCache\ResultCommand;
+use Doctrine\ORM\Tools\Console\Command\GenerateProxiesCommand;
+use Doctrine\ORM\Tools\Console\Command\SchemaTool\CreateCommand;
+use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
+use Doctrine\ORM\Tools\Console\Command\ValidateSchemaCommand;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
+
+$app = new Application('Demo Doctrine Console');
+
+
+$app->setHelperSet(
+    ConsoleRunner::createHelperSet($entityManager)
+);
+
+$output = new ConsoleOutput();
+
+//Enable this line for logging sql into console
+//$entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output));
+
+$app->add(new ValidateSchemaCommand());
+$app->add(new UpdateCommand());
+$app->add(new CreateCommand());
+$app->add(new GenerateProxiesCommand());
+$app->add(new MetadataCommand());
+$app->add(new QueryCommand());
+$app->add(new ResultCommand());
+$app->add(new UuidTestCommand($entityManager));
+$fixtureLoadCommand = new FixtureLoadCommand($entityManager);
+$app->add($fixtureLoadCommand);
+
+$searchByCustomTypeCommand = new SearchByCustomTypeCommand(
+    $entityManager->getRepository(Task::class),
+);
+$app->add($searchByCustomTypeCommand);
+
+$inheritanceSingleTableCommand = new InheritanceSingleTableCommand(
+    $entityManager->getRepository(Document::class),
+);
+$app->add($inheritanceSingleTableCommand);
+
+$noInheritanceSingleTableCommand = new NoInheritanceSingleTableCommand(
+    $entityManager->getRepository(DocumentType2::class),
+);
+$app->add($noInheritanceSingleTableCommand);
+
+$testFilterCommand = new TestFilterCommand(
+    taskRepository: $entityManager->getRepository(Task::class),
+    sprintRepository: $entityManager->getRepository(Sprint::class),
+    entityManager: $entityManager,
+);
+$app->add($testFilterCommand);
+
+$qbFetchModeCommand = new QbFetchModeCommand($entityManager);
+$app->add($qbFetchModeCommand);
+
+$oneColumnHydratorCommand = new OneColumnHydratorCommand($entityManager);
+$app->add($oneColumnHydratorCommand);
+
+$oneColumnSingleScalarHydrateCommand = new OneColumnSingleScalarHydrateCommand($entityManager);
+$app->add($oneColumnSingleScalarHydrateCommand);
+
+$oneToOneRelationLazyCommand = new OneToOneRelationLazyCommand($entityManager);
+$app->add($oneToOneRelationLazyCommand);
+
+$oneToOneRelationEagerCommand = new OneToOneRelationEagerCommand($entityManager);
+$app->add($oneToOneRelationEagerCommand);
+
+$oneToManyRelationRemoveCommand = new OneToManyRelationRemoveCommand($entityManager);
+$app->add($oneToManyRelationRemoveCommand);
+
+$oneToManyLEftJoinCommand = new OneToOneLeftJoinCommand($entityManager);
+$app->add($oneToManyLEftJoinCommand);
+
+$doctrineMetadataCommand = new DoctrineMetadataCommand($entityManager);
+$app->add($doctrineMetadataCommand);
+
+$tableNameInQbCommand = new TableNameInQbCommand($entityManager);
+$app->add($tableNameInQbCommand);
+
+$qbPaginatorCommand = new QueryBuilderPaginatorCommand(
+        new CompanyRepository($entityManager),
+);
+$app->add($qbPaginatorCommand);
+
+$dqlFieldsAndRsmCommand = new DqlFieldsAndDtoMappingCommand(
+        new TaskRepository($entityManager),
+);
+$app->add($dqlFieldsAndRsmCommand);
+
+$uselessUpdateOnPrePersistCommand = new UpdateOnPrePersistCommand(
+    new CompanyWithPrePersistRepository($entityManager),
+    $entityManager
+);
+$app->add($uselessUpdateOnPrePersistCommand);
+
+$companyWithZeroLocationCommand = new CompanyWithZeroLocationCommand(
+    $entityManager,
+);
+$app->add($companyWithZeroLocationCommand);
+
+$addRemoveInnerEntityTestCommand = new AddRemoveInnerEntityTestCommand(
+    $entityManager,
+);
+$app->add($addRemoveInnerEntityTestCommand);
+
+$manyToManyBidirectionalTestCommand = new ManyToManyBidirectionalTestCommand(
+    $entityManager,
+    new UserRepository($entityManager),
+    new RoomRepository($entityManager),
+);
+$app->add($manyToManyBidirectionalTestCommand);
+
+$enumTestCommand = new TestEnumsCommand(
+    $entityManager,
+    new LocationRepository($entityManager),
+    new RoomRepository($entityManager),
+);
+$app->add($enumTestCommand);
+
+$app->run(null, $output);

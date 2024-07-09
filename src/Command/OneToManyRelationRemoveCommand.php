@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Entity\Location;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,6 +23,7 @@ class OneToManyRelationRemoveCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
@@ -31,7 +33,7 @@ class OneToManyRelationRemoveCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
         $locationRepository = $this->entityManager->getRepository(Location::class);
         $location = $locationRepository->find(1);
         if (!$location instanceof Location) {

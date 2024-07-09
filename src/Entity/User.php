@@ -26,8 +26,7 @@ class User
     private bool $active = true;
 
     #[
-        ORM\OneToOne(mappedBy: 'user', targetEntity: UserSettings::class, cascade: ['persist']),
-        ORM\JoinColumn(name: 'settings_id', referencedColumnName: 'id'),
+        ORM\OneToOne(targetEntity: UserSettings::class, mappedBy: 'user', cascade: ['persist']),
     ]
     private UserSettings $userSettings;
 

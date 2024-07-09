@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -24,6 +25,7 @@ class OneColumnSingleScalarHydrateCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
@@ -33,7 +35,7 @@ class OneColumnSingleScalarHydrateCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
 
         $userRepository = $this->entityManager->getRepository(User::class);
 

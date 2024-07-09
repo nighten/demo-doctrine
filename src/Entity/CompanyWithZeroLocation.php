@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Persistence\ObjectManager;
 use RuntimeException;
@@ -85,7 +86,7 @@ class CompanyWithZeroLocation
         ORM\PostLoad,
         ORM\PostPersist,
     ]
-    public function postLoad(LifecycleEventArgs $args): void
+    public function postLoad(PostLoadEventArgs | PostPersistEventArgs $args): void
     {
         $this->objectManager = $args->getObjectManager();
     }

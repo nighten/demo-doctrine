@@ -33,39 +33,19 @@ use App\Repository\LocationRepository;
 use App\Repository\RoomRepository;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
-use Doctrine\ORM\Tools\Console\Command\ClearCache\MetadataCommand;
-use Doctrine\ORM\Tools\Console\Command\ClearCache\QueryCommand;
-use Doctrine\ORM\Tools\Console\Command\ClearCache\ResultCommand;
-use Doctrine\ORM\Tools\Console\Command\GenerateProxiesCommand;
-use Doctrine\ORM\Tools\Console\Command\SchemaTool\CreateCommand;
-use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
-use Doctrine\ORM\Tools\Console\Command\ValidateSchemaCommand;
-use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../bootstrap.php';
 
+global $entityManager;
+global $doctrineLogger;
+
 $app = new Application('Demo Doctrine Console');
-
-
-$app->setHelperSet(
-    ConsoleRunner::createHelperSet($entityManager)
-);
 
 $output = new ConsoleOutput();
 
-//Enable this line for logging sql into console
-//$entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output));
-
-$app->add(new ValidateSchemaCommand());
-$app->add(new UpdateCommand());
-$app->add(new CreateCommand());
-$app->add(new GenerateProxiesCommand());
-$app->add(new MetadataCommand());
-$app->add(new QueryCommand());
-$app->add(new ResultCommand());
 $app->add(new UuidTestCommand($entityManager));
 $fixtureLoadCommand = new FixtureLoadCommand($entityManager);
 $app->add($fixtureLoadCommand);
@@ -92,46 +72,73 @@ $testFilterCommand = new TestFilterCommand(
 );
 $app->add($testFilterCommand);
 
-$qbFetchModeCommand = new QbFetchModeCommand($entityManager);
+$qbFetchModeCommand = new QbFetchModeCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($qbFetchModeCommand);
 
-$oneColumnHydratorCommand = new OneColumnHydratorCommand($entityManager);
+$oneColumnHydratorCommand = new OneColumnHydratorCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneColumnHydratorCommand);
 
-$oneColumnSingleScalarHydrateCommand = new OneColumnSingleScalarHydrateCommand($entityManager);
+$oneColumnSingleScalarHydrateCommand = new OneColumnSingleScalarHydrateCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneColumnSingleScalarHydrateCommand);
 
-$oneToOneRelationLazyCommand = new OneToOneRelationLazyCommand($entityManager);
+$oneToOneRelationLazyCommand = new OneToOneRelationLazyCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneToOneRelationLazyCommand);
 
-$oneToOneRelationEagerCommand = new OneToOneRelationEagerCommand($entityManager);
+$oneToOneRelationEagerCommand = new OneToOneRelationEagerCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneToOneRelationEagerCommand);
 
-$oneToManyRelationRemoveCommand = new OneToManyRelationRemoveCommand($entityManager);
+$oneToManyRelationRemoveCommand = new OneToManyRelationRemoveCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneToManyRelationRemoveCommand);
 
-$oneToManyLEftJoinCommand = new OneToOneLeftJoinCommand($entityManager);
+$oneToManyLEftJoinCommand = new OneToOneLeftJoinCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($oneToManyLEftJoinCommand);
 
-$doctrineMetadataCommand = new DoctrineMetadataCommand($entityManager);
+$doctrineMetadataCommand = new DoctrineMetadataCommand(
+    $entityManager,
+);
 $app->add($doctrineMetadataCommand);
 
-$tableNameInQbCommand = new TableNameInQbCommand($entityManager);
+$tableNameInQbCommand = new TableNameInQbCommand(
+    $entityManager,
+    $doctrineLogger,
+);
 $app->add($tableNameInQbCommand);
 
 $qbPaginatorCommand = new QueryBuilderPaginatorCommand(
-        new CompanyRepository($entityManager),
+    new CompanyRepository($entityManager),
 );
 $app->add($qbPaginatorCommand);
 
 $dqlFieldsAndRsmCommand = new DqlFieldsAndDtoMappingCommand(
-        new TaskRepository($entityManager),
+    new TaskRepository($entityManager),
 );
 $app->add($dqlFieldsAndRsmCommand);
 
 $uselessUpdateOnPrePersistCommand = new UpdateOnPrePersistCommand(
     new CompanyWithPrePersistRepository($entityManager),
-    $entityManager
+    $entityManager,
+    $doctrineLogger,
 );
 $app->add($uselessUpdateOnPrePersistCommand);
 
@@ -142,6 +149,7 @@ $app->add($companyWithZeroLocationCommand);
 
 $addRemoveInnerEntityTestCommand = new AddRemoveInnerEntityTestCommand(
     $entityManager,
+    $doctrineLogger,
 );
 $app->add($addRemoveInnerEntityTestCommand);
 
@@ -149,6 +157,7 @@ $manyToManyBidirectionalTestCommand = new ManyToManyBidirectionalTestCommand(
     $entityManager,
     new UserRepository($entityManager),
     new RoomRepository($entityManager),
+    $doctrineLogger,
 );
 $app->add($manyToManyBidirectionalTestCommand);
 
@@ -156,6 +165,7 @@ $enumTestCommand = new TestEnumsCommand(
     $entityManager,
     new LocationRepository($entityManager),
     new RoomRepository($entityManager),
+    $doctrineLogger,
 );
 $app->add($enumTestCommand);
 

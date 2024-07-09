@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Entity\User;
 use App\Entity\UserCalendarSettings;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -23,13 +24,14 @@ class OneToOneLeftJoinCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('u.name, calendarSettings.enabled')

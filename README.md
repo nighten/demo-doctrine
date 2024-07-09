@@ -13,7 +13,7 @@
 ```docker exec -it demo-doctrine-php composer install```
 
 * Создание схемы
-``` docker exec -it demo-doctrine-php php bin/console orm:schema-tool:create```
+``` docker exec -it demo-doctrine-php php bin/doctrine orm:schema-tool:create```
 
 * Наполнение базы фикстурами
 ``` docker exec -it demo-doctrine-php php bin/console app:fixture-load```

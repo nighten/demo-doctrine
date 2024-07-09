@@ -3,32 +3,40 @@
 use App\Filters\ActiveFilter;
 use App\Hydrator\OneColumnIntegerHydrator;
 use App\Hydrator\OneColumnStringHydrator;
+use App\Logger\DoctrineLogger;
+use App\Logger\LoggerMiddleware;
 use App\Types\EnumBooleanType;
 use App\Types\Listener\EnumTypeListener;
 use App\Types\Specific\LocationTypePhp;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Types\Type;
 
 require_once 'vendor/autoload.php';
 
-// Create a simple "default" Doctrine ORM configuration for Attribute
-$isDevMode = true;
-$proxyDir = null;
-$cache = null;
 $config = ORMSetup::createAttributeMetadataConfiguration(
-    array(__DIR__ . '/src'),
-    $isDevMode,
-    $proxyDir,
-    $cache,
+    paths: array(__DIR__ . '/src'),
+    isDevMode: true,
 );
+
+$doctrineLogger = new DoctrineLogger();
+
+$config->setMiddlewares([
+    new LoggerMiddleware($doctrineLogger),
+]);
+
+$connection = DriverManager::getConnection([
+    'dbname' => 'demo-doctrine',
+    'user' => 'root',
+    'password' => 'root',
+    'host' => 'demo-doctrine-mysql',
+    'driver' => 'pdo_mysql',
+], $config);
+
 $config->addFilter('active', ActiveFilter::class);
 
-$connectionOptions = [
-    'url' => 'mysql://root:root@demo-doctrine-mysql/demo-doctrine',
-];
-
-$entityManager = EntityManager::create($connectionOptions, $config);
+$entityManager = new EntityManager($connection, $config);
 
 Type::addType(EnumBooleanType::ENUM_BOOLEAN, EnumBooleanType::class);
 Type::addType('uuid', App\Types\UuidType::class);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,13 +25,14 @@ class ManyToManyBidirectionalTestCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
         private readonly RoomRepository $roomRepository,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
 
         //SELECT t0.id AS id_1, t0.name AS name_2, t0.active AS active_3, t0.settings_id AS settings_id_4 FROM user t0 WHERE t0.id = ?
         $user1 = $this->userRepository->find(1);

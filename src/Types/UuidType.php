@@ -10,7 +10,7 @@ use Symfony\Component\Uid\UuidV4;
 
 class UuidType extends GuidType
 {
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return UuidV4::fromString($value);
     }

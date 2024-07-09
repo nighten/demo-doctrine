@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Entity\Task;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,13 +22,14 @@ class OneColumnHydratorCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select(
             'task.id FROM ' . Task::class .

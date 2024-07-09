@@ -8,6 +8,7 @@ use App\Entity\Location;
 use App\Enum\LocationType;
 use App\Enum\RoomType;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use App\Repository\LocationRepository;
 use App\Repository\RoomRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,13 +28,14 @@ class TestEnumsCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly LocationRepository $locationRepository,
         private readonly RoomRepository $roomRepository,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
 
         $location1 = $this->locationRepository->find(1);
 

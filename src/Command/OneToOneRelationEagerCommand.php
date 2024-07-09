@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Entity\Bill;
 use App\Entity\Account;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -22,13 +23,14 @@ class OneToOneRelationEagerCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
         $billRepository = $this->entityManager->getRepository(Bill::class);
         $accountRepository = $this->entityManager->getRepository(Account::class);
 

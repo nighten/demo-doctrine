@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Entity\CompanyWithPrePersist;
 use App\Logger\DoctrineConsoleLogger;
+use App\Logger\DoctrineLogger;
 use App\Repository\CompanyWithPrePersistRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -23,13 +24,14 @@ class UpdateOnPrePersistCommand extends Command
     public function __construct(
         private readonly CompanyWithPrePersistRepository $companyRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly DoctrineLogger $logger,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->entityManager->getConfiguration()->setSQLLogger(new DoctrineConsoleLogger($output, true));
+        $this->logger->setOutput($output, true);
         $company1 = $this->companyRepository->find(1);
         $this->entityManager->flush();
         $company2 = $this->companyRepository->find(2);

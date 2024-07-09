@@ -17,7 +17,7 @@ class UserSettings
     private ?int $id = null;
 
     #[
-        ORM\OneToOne(inversedBy: 'userSettings', targetEntity: User::class),
+        ORM\OneToOne(targetEntity: User::class, inversedBy: 'userSettings'),
         ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id'),
     ]
     private User $user;

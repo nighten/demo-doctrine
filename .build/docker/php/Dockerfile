@@ -1,4 +1,4 @@
-FROM php:8.3.2-fpm
+FROM php:8.3.8-fpm
 
 RUN apt-get update \
     && apt-get install -y \
@@ -10,10 +10,6 @@ RUN apt-get update \
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# xDebug
-#RUN yes | pecl install xdebug \
-#    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN mkdir -p /code/logs/profiler
 
